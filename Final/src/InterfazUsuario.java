@@ -1,197 +1,291 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
 
 public class InterfazUsuario extends JFrame {
-    private GestionUsuarios gestionUsuarios;
-    private GestionLibros gestionLibros;
-    private GestionPrestamos gestionPrestamos;
+    private UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private LibroDAO libroDAO = new LibroDAO();
+    private PrestamoDAO prestamoDAO = new PrestamoDAO();
 
     public InterfazUsuario() {
-        // Inicializar las clases de gestión
-        gestionUsuarios = new GestionUsuarios();
-        gestionLibros = new GestionLibros();
-        gestionPrestamos = new GestionPrestamos();
-
-        // Configuración básica del JFrame
         setTitle("Sistema de Gestión de Biblioteca Digital");
-        setSize(800, 600);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Crear el menú
         JMenuBar menuBar = new JMenuBar();
 
-        // Menú de gestión de usuarios
-        JMenu menuUsuarios = new JMenu("Gestión de Usuarios");
-        JMenuItem menuItemAgregarUsuario = new JMenuItem("Agregar Usuario");
-        JMenuItem menuItemModificarUsuario = new JMenuItem("Modificar Usuario");
-        JMenuItem menuItemEliminarUsuario = new JMenuItem("Eliminar Usuario");
-
-        menuUsuarios.add(menuItemAgregarUsuario);
-        menuUsuarios.add(menuItemModificarUsuario);
-        menuUsuarios.add(menuItemEliminarUsuario);
+        JMenu menuUsuarios = new JMenu("Usuarios");
+        JMenuItem itemAgregarUsuario = new JMenuItem("Agregar Usuario");
+        JMenuItem itemModificarUsuario = new JMenuItem("Modificar Usuario");
+        JMenuItem itemEliminarUsuario = new JMenuItem("Eliminar Usuario");
+        JMenuItem itemBuscarUsuario = new JMenuItem("Buscar Usuario");
+        JMenuItem itemListarUsuarios = new JMenuItem("Listar Usuarios");
+        menuUsuarios.add(itemAgregarUsuario);
+        menuUsuarios.add(itemModificarUsuario);
+        menuUsuarios.add(itemEliminarUsuario);
+        menuUsuarios.add(itemBuscarUsuario);
+        menuUsuarios.add(itemListarUsuarios);
         menuBar.add(menuUsuarios);
 
-        // Menú de gestión de libros
-        JMenu menuLibros = new JMenu("Gestión de Libros");
-        JMenuItem menuItemAgregarLibro = new JMenuItem("Agregar Libro");
-        JMenuItem menuItemModificarLibro = new JMenuItem("Modificar Libro");
-        JMenuItem menuItemEliminarLibro = new JMenuItem("Eliminar Libro");
-        JMenuItem menuItemBuscarLibro = new JMenuItem("Buscar Libro");
-
-        menuLibros.add(menuItemAgregarLibro);
-        menuLibros.add(menuItemModificarLibro);
-        menuLibros.add(menuItemEliminarLibro);
-        menuLibros.add(menuItemBuscarLibro);
+        JMenu menuLibros = new JMenu("Libros");
+        JMenuItem itemAgregarLibro = new JMenuItem("Agregar Libro");
+        JMenuItem itemModificarLibro = new JMenuItem("Modificar Libro");
+        JMenuItem itemEliminarLibro = new JMenuItem("Eliminar Libro");
+        JMenuItem itemBuscarLibro = new JMenuItem("Buscar Libro");
+        JMenuItem itemListarLibros = new JMenuItem("Listar Libros");
+        menuLibros.add(itemAgregarLibro);
+        menuLibros.add(itemModificarLibro);
+        menuLibros.add(itemEliminarLibro);
+        menuLibros.add(itemBuscarLibro);
+        menuLibros.add(itemListarLibros);
         menuBar.add(menuLibros);
 
-        // Menú de préstamos
         JMenu menuPrestamos = new JMenu("Préstamos");
-        JMenuItem menuItemRegistrarPrestamo = new JMenuItem("Registrar Préstamo");
-        JMenuItem menuItemDevolverLibro = new JMenuItem("Devolver Libro");
-
-        menuPrestamos.add(menuItemRegistrarPrestamo);
-        menuPrestamos.add(menuItemDevolverLibro);
+        JMenuItem itemAgregarPrestamo = new JMenuItem("Agregar Préstamo");
+        JMenuItem itemModificarPrestamo = new JMenuItem("Modificar Préstamo");
+        JMenuItem itemEliminarPrestamo = new JMenuItem("Eliminar Préstamo");
+        JMenuItem itemBuscarPrestamo = new JMenuItem("Buscar Préstamo");
+        JMenuItem itemListarPrestamos = new JMenuItem("Listar Préstamos");
+        menuPrestamos.add(itemAgregarPrestamo);
+        menuPrestamos.add(itemModificarPrestamo);
+        menuPrestamos.add(itemEliminarPrestamo);
+        menuPrestamos.add(itemBuscarPrestamo);
+        menuPrestamos.add(itemListarPrestamos);
         menuBar.add(menuPrestamos);
-
-        // Menú de reportes
-        JMenu menuReportes = new JMenu("Reportes");
-        JMenuItem menuItemGenerarReporte = new JMenuItem("Generar Reporte");
-
-        menuReportes.add(menuItemGenerarReporte);
-        menuBar.add(menuReportes);
 
         setJMenuBar(menuBar);
 
-        // Configurar listeners para los ítems del menú
-        configurarListeners(menuItemAgregarUsuario, menuItemModificarUsuario, menuItemEliminarUsuario,
-                menuItemAgregarLibro, menuItemModificarLibro, menuItemEliminarLibro, menuItemBuscarLibro,
-                menuItemRegistrarPrestamo, menuItemDevolverLibro, menuItemGenerarReporte);
-    }
-
-    private void configurarListeners(JMenuItem... menuItems) {
-        for (JMenuItem item : menuItems) {
-            item.addActionListener(new MenuActionListener());
-        }
-    }
-
-    // Clase interna para manejar las acciones del menú
-    private class MenuActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String comando = e.getActionCommand();
-            try {
-                switch (comando) {
-                    case "Agregar Usuario":
-                        mostrarDialogoAgregarUsuario();
-                        break;
-                    case "Modificar Usuario":
-                        mostrarDialogoModificarUsuario();
-                        break;
-                    case "Eliminar Usuario":
-                        mostrarDialogoEliminarUsuario();
-                        break;
-                    case "Agregar Libro":
-                        mostrarDialogoAgregarLibro();
-                        break;
-                    case "Modificar Libro":
-                        mostrarDialogoModificarLibro();
-                        break;
-                    case "Eliminar Libro":
-                        mostrarDialogoEliminarLibro();
-                        break;
-                    case "Buscar Libro":
-                        mostrarDialogoBuscarLibro();
-                        break;
-                    case "Registrar Préstamo":
-                        mostrarDialogoRegistrarPrestamo();
-                        break;
-                    case "Devolver Libro":
-                        mostrarDialogoDevolverLibro();
-                        break;
-                    case "Generar Reporte":
-                        mostrarDialogoGenerarReporte();
-                        break;
-                    default:
-                        break;
+        // Usuarios
+        itemAgregarUsuario.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String nombre = JOptionPane.showInputDialog("Nombre:");
+                String email = JOptionPane.showInputDialog("Email:");
+                try {
+                    usuarioDAO.agregarUsuario(new UsuarioDTO(0, nombre, email));
+                    JOptionPane.showMessageDialog(null, "Usuario agregado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al agregar usuario: " + ex.getMessage());
                 }
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(InterfazUsuario.this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-    }
+        });
 
-    private void mostrarDialogoAgregarUsuario() throws SQLException {
-        String nombre = JOptionPane.showInputDialog(this, "Nombre del Usuario:");
-        String email = JOptionPane.showInputDialog(this, "Email del Usuario:");
-        gestionUsuarios.agregarUsuario(new Usuario(0, nombre, email));
-        JOptionPane.showMessageDialog(this, "Usuario agregado exitosamente.");
-    }
+        itemModificarUsuario.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del usuario a modificar:"));
+                String nombre = JOptionPane.showInputDialog("Nuevo nombre:");
+                String email = JOptionPane.showInputDialog("Nuevo email:");
+                try {
+                    usuarioDAO.modificarUsuario(new UsuarioDTO(id, nombre, email));
+                    JOptionPane.showMessageDialog(null, "Usuario modificado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al modificar usuario: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoModificarUsuario() throws SQLException {
-        int id = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Usuario a Modificar:"));
-        String nombre = JOptionPane.showInputDialog(this, "Nuevo Nombre del Usuario:");
-        String email = JOptionPane.showInputDialog(this, "Nuevo Email del Usuario:");
-        gestionUsuarios.modificarUsuario(new Usuario(id, nombre, email));
-        JOptionPane.showMessageDialog(this, "Usuario modificado exitosamente.");
-    }
+        itemEliminarUsuario.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del usuario a eliminar:"));
+                try {
+                    usuarioDAO.eliminarUsuario(id);
+                    JOptionPane.showMessageDialog(null, "Usuario eliminado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al eliminar usuario: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoEliminarUsuario() throws SQLException {
-        int id = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Usuario a Eliminar:"));
-        gestionUsuarios.eliminarUsuario(id);
-        JOptionPane.showMessageDialog(this, "Usuario eliminado exitosamente.");
-    }
+        itemBuscarUsuario.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del usuario a buscar:"));
+                try {
+                    UsuarioDTO usuario = usuarioDAO.buscarUsuario(id);
+                    JOptionPane.showMessageDialog(null, "ID: " + usuario.getId() + "\nNombre: " + usuario.getNombre() + "\nEmail: " + usuario.getEmail());
+                } catch (UsuarioNoEncontradoException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al buscar usuario: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoAgregarLibro() throws SQLException {
-        String titulo = JOptionPane.showInputDialog(this, "Título del Libro:");
-        String autor = JOptionPane.showInputDialog(this, "Autor del Libro:");
-        String genero = JOptionPane.showInputDialog(this, "Género del Libro:");
-        gestionLibros.agregarLibro(new LibroDigital(0, titulo, autor, genero));
-        JOptionPane.showMessageDialog(this, "Libro agregado exitosamente.");
-    }
+        itemListarUsuarios.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    List<UsuarioDTO> usuarios = usuarioDAO.listarUsuarios();
+                    StringBuilder sb = new StringBuilder();
+                    for (UsuarioDTO usuario : usuarios) {
+                        sb.append("ID: ").append(usuario.getId()).append(", Nombre: ").append(usuario.getNombre()).append(", Email: ").append(usuario.getEmail()).append("\n");
+                    }
+                    JOptionPane.showMessageDialog(null, sb.toString());
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al listar usuarios: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoModificarLibro() throws SQLException {
-        int id = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Libro a Modificar:"));
-        String titulo = JOptionPane.showInputDialog(this, "Nuevo Título del Libro:");
-        String autor = JOptionPane.showInputDialog(this, "Nuevo Autor del Libro:");
-        String genero = JOptionPane.showInputDialog(this, "Nuevo Género del Libro:");
-        gestionLibros.modificarLibro(new LibroDigital(id, titulo, autor, genero));
-        JOptionPane.showMessageDialog(this, "Libro modificado exitosamente.");
-    }
+        // Libros
+        itemAgregarLibro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String titulo = JOptionPane.showInputDialog("Título:");
+                String autor = JOptionPane.showInputDialog("Autor:");
+                String genero = JOptionPane.showInputDialog("Género:");
+                try {
+                    libroDAO.agregarLibro(new LibroDTO(0, titulo, autor, genero));
+                    JOptionPane.showMessageDialog(null, "Libro agregado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al agregar libro: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoEliminarLibro() throws SQLException {
-        int id = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Libro a Eliminar:"));
-        gestionLibros.eliminarLibro(id);
-        JOptionPane.showMessageDialog(this, "Libro eliminado exitosamente.");
-    }
+        itemModificarLibro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del libro a modificar:"));
+                String titulo = JOptionPane.showInputDialog("Nuevo título:");
+                String autor = JOptionPane.showInputDialog("Nuevo autor:");
+                String genero = JOptionPane.showInputDialog("Nuevo género:");
+                try {
+                    libroDAO.modificarLibro(new LibroDTO(id, titulo, autor, genero));
+                    JOptionPane.showMessageDialog(null, "Libro modificado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al modificar libro: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoBuscarLibro() throws SQLException {
-        int id = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Libro a Buscar:"));
-        LibroDigital libro = gestionLibros.buscarLibro(id);
-        if (libro != null) {
-            JOptionPane.showMessageDialog(this, "Libro Encontrado: \nTítulo: " + libro.getTitulo() + "\nAutor: " + libro.getAutor() + "\nGénero: " + libro.getGenero());
-        } else {
-            JOptionPane.showMessageDialog(this, "Libro no encontrado.");
-        }
-    }
+        itemEliminarLibro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del libro a eliminar:"));
+                try {
+                    libroDAO.eliminarLibro(id);
+                    JOptionPane.showMessageDialog(null, "Libro eliminado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al eliminar libro: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoRegistrarPrestamo() throws SQLException {
-        int idUsuario = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Usuario:"));
-        int idLibro = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Libro:"));
-        gestionPrestamos.registrarPrestamo(new Prestamo(0, idUsuario, idLibro, new java.util.Date(), null));
-        JOptionPane.showMessageDialog(this, "Préstamo registrado exitosamente.");
-    }
+        itemBuscarLibro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del libro a buscar:"));
+                try {
+                    LibroDTO libro = libroDAO.buscarLibro(id);
+                    JOptionPane.showMessageDialog(null, "ID: " + libro.getId() + "\nTítulo: " + libro.getTitulo() + "\nAutor: " + libro.getAutor() + "\nGénero: " + libro.getGenero());
+                } catch (LibroNoEncontradoException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al buscar libro: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoDevolverLibro() throws SQLException {
-        int idPrestamo = Integer.parseInt(JOptionPane.showInputDialog(this, "ID del Préstamo:"));
-        gestionPrestamos.devolverLibro(idPrestamo, new java.util.Date());
-        JOptionPane.showMessageDialog(this, "Libro devuelto exitosamente.");
-    }
+        itemListarLibros.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    List<LibroDTO> libros = libroDAO.listarLibros();
+                    StringBuilder sb = new StringBuilder();
+                    for (LibroDTO libro : libros) {
+                        sb.append("ID: ").append(libro.getId()).append(", Título: ").append(libro.getTitulo()).append(", Autor: ").append(libro.getAutor()).append(", Género: ").append(libro.getGenero()).append("\n");
+                    }
+                    JOptionPane.showMessageDialog(null, sb.toString());
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al listar libros: " + ex.getMessage());
+                }
+            }
+        });
 
-    private void mostrarDialogoGenerarReporte() throws SQLException {
-        // Aquí puedes implementar la lógica para generar reportes
-        JOptionPane.showMessageDialog(this, "Generando reporte...");
+        // Préstamos
+        itemAgregarPrestamo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int idUsuario = Integer.parseInt(JOptionPane.showInputDialog("ID del usuario:"));
+                int idLibro = Integer.parseInt(JOptionPane.showInputDialog("ID del libro:"));
+                Date fechaPrestamo = new Date();
+                Date fechaDevolucion = new Date(fechaPrestamo.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 días después
+                try {
+                    prestamoDAO.agregarPrestamo(new PrestamoDTO(0, idUsuario, idLibro, fechaPrestamo, fechaDevolucion));
+                    JOptionPane.showMessageDialog(null, "Préstamo agregado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al agregar préstamo: " + ex.getMessage());
+                }
+            }
+        });
+
+        itemModificarPrestamo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del préstamo a modificar:"));
+                int idUsuario = Integer.parseInt(JOptionPane.showInputDialog("Nuevo ID del usuario:"));
+                int idLibro = Integer.parseInt(JOptionPane.showInputDialog("Nuevo ID del libro:"));
+                Date fechaPrestamo = new Date();
+                Date fechaDevolucion = new Date(fechaPrestamo.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 días después
+                try {
+                    prestamoDAO.modificarPrestamo(new PrestamoDTO(id, idUsuario, idLibro, fechaPrestamo, fechaDevolucion));
+                    JOptionPane.showMessageDialog(null, "Préstamo modificado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al modificar préstamo: " + ex.getMessage());
+                }
+            }
+        });
+
+        itemEliminarPrestamo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del préstamo a eliminar:"));
+                try {
+                    prestamoDAO.eliminarPrestamo(id);
+                    JOptionPane.showMessageDialog(null, "Préstamo eliminado con éxito");
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al eliminar préstamo: " + ex.getMessage());
+                }
+            }
+        });
+
+        itemBuscarPrestamo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("ID del préstamo a buscar:"));
+                try {
+                    PrestamoDTO prestamo = prestamoDAO.buscarPrestamo(id);
+                    JOptionPane.showMessageDialog(null, "ID: " + prestamo.getId() + "\nID Usuario: " + prestamo.getIdUsuario() + "\nID Libro: " + prestamo.getIdLibro() + "\nFecha Préstamo: " + prestamo.getFechaPrestamo() + "\nFecha Devolución: " + prestamo.getFechaDevolucion());
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al buscar préstamo: " + ex.getMessage());
+                }
+            }
+        });
+
+        itemListarPrestamos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    List<PrestamoDTO> prestamos = prestamoDAO.listarPrestamos();
+                    StringBuilder sb = new StringBuilder();
+                    for (PrestamoDTO prestamo : prestamos) {
+                        sb.append("ID: ").append(prestamo.getId()).append(", ID Usuario: ").append(prestamo.getIdUsuario()).append(", ID Libro: ").append(prestamo.getIdLibro()).append(", Fecha Préstamo: ").append(prestamo.getFechaPrestamo()).append(", Fecha Devolución: ").append(prestamo.getFechaDevolucion()).append("\n");
+                    }
+                    JOptionPane.showMessageDialog(null, sb.toString());
+                } catch (BibliotecaException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al listar préstamos: " + ex.getMessage());
+                }
+            }
+        });
+
+        setVisible(true);
     }
 }

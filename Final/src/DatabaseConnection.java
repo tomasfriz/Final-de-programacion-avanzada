@@ -7,13 +7,13 @@ public class DatabaseConnection {
     private Connection connection;
     private String url = "jdbc:mysql://localhost:3306/biblioteca_digital";
     private String username = "root";
-    private String password = "Programador821";
+    private String password = "programador821";
 
     private DatabaseConnection() throws SQLException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(url, username, password);
-        } catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             throw new SQLException(ex);
         }
     }
@@ -28,6 +28,7 @@ public class DatabaseConnection {
         } else if (instance.getConnection().isClosed()) {
             instance = new DatabaseConnection();
         }
+
         return instance;
     }
 }
