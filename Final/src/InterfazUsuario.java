@@ -10,6 +10,8 @@ public class InterfazUsuario extends JFrame {
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
     private LibroDAO libroDAO = new LibroDAO();
     private PrestamoDAO prestamoDAO = new PrestamoDAO();
+    private ReporteDAO reporteDAO = new ReporteDAO();
+    private JTextArea areaReportes;
 
     public InterfazUsuario() {
         setTitle("Sistema de Gestión de Biblioteca Digital");
@@ -58,7 +60,18 @@ public class InterfazUsuario extends JFrame {
         menuPrestamos.add(itemListarPrestamos);
         menuBar.add(menuPrestamos);
 
+        JMenu menuReportes = new JMenu("Reportes");
+        JMenuItem itemReporteLibrosMasSolicitados = new JMenuItem("Libros Más Solicitados");
+        JMenuItem itemReporteUsuariosMasPrestamos = new JMenuItem("Usuarios con Más Préstamos");
+        menuReportes.add(itemReporteLibrosMasSolicitados);
+        menuReportes.add(itemReporteUsuariosMasPrestamos);
+        menuBar.add(menuReportes);
+
         setJMenuBar(menuBar);
+
+        areaReportes = new JTextArea();
+        areaReportes.setEditable(false);
+        add(new JScrollPane(areaReportes), BorderLayout.CENTER);
 
         // Usuarios
         itemAgregarUsuario.addActionListener(new ActionListener() {
@@ -123,13 +136,13 @@ public class InterfazUsuario extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     List<UsuarioDTO> usuarios = usuarioDAO.listarUsuarios();
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder reporte = new StringBuilder("Usuarios:\n");
                     for (UsuarioDTO usuario : usuarios) {
-                        sb.append("ID: ").append(usuario.getId()).append(", Nombre: ").append(usuario.getNombre()).append(", Email: ").append(usuario.getEmail()).append("\n");
+                        reporte.append("ID: ").append(usuario.getId()).append(", Nombre: ").append(usuario.getNombre()).append(", Email: ").append(usuario.getEmail()).append("\n");
                     }
-                    JOptionPane.showMessageDialog(null, sb.toString());
+                    areaReportes.setText(reporte.toString());
                 } catch (BibliotecaException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al listar usuarios: " + ex.getMessage());
+                    areaReportes.setText("Error al listar usuarios: " + ex.getMessage());
                 }
             }
         });
@@ -199,13 +212,13 @@ public class InterfazUsuario extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     List<LibroDTO> libros = libroDAO.listarLibros();
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder reporte = new StringBuilder("Libros:\n");
                     for (LibroDTO libro : libros) {
-                        sb.append("ID: ").append(libro.getId()).append(", Título: ").append(libro.getTitulo()).append(", Autor: ").append(libro.getAutor()).append(", Género: ").append(libro.getGenero()).append("\n");
+                        reporte.append("ID: ").append(libro.getId()).append(", Título: ").append(libro.getTitulo()).append(", Autor: ").append(libro.getAutor()).append(", Género: ").append(libro.getGenero()).append("\n");
                     }
-                    JOptionPane.showMessageDialog(null, sb.toString());
+                    areaReportes.setText(reporte.toString());
                 } catch (BibliotecaException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al listar libros: " + ex.getMessage());
+                    areaReportes.setText("Error al listar libros: " + ex.getMessage());
                 }
             }
         });
@@ -275,17 +288,49 @@ public class InterfazUsuario extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     List<PrestamoDTO> prestamos = prestamoDAO.listarPrestamos();
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder reporte = new StringBuilder("Préstamos:\n");
                     for (PrestamoDTO prestamo : prestamos) {
-                        sb.append("ID: ").append(prestamo.getId()).append(", ID Usuario: ").append(prestamo.getIdUsuario()).append(", ID Libro: ").append(prestamo.getIdLibro()).append(", Fecha Préstamo: ").append(prestamo.getFechaPrestamo()).append(", Fecha Devolución: ").append(prestamo.getFechaDevolucion()).append("\n");
+                        reporte.append("ID: ").append(prestamo.getId()).append(", ID Usuario: ").append(prestamo.getIdUsuario()).append(", ID Libro: ").append(prestamo.getIdLibro()).append(", Fecha Préstamo: ").append(prestamo.getFechaPrestamo()).append("\n");
                     }
-                    JOptionPane.showMessageDialog(null, sb.toString());
+                    areaReportes.setText(reporte.toString());
                 } catch (BibliotecaException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al listar préstamos: " + ex.getMessage());
+                    areaReportes.setText("Error al listar préstamos: " + ex.getMessage());
                 }
             }
         });
 
+        // Agregar listeners para reportes
+        itemReporteLibrosMasSolicitados.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    List<LibroDTO> libros = reporteDAO.librosMasSolicitados();
+                    StringBuilder reporte = new StringBuilder("Libros Más Solicitados:\n");
+                    for (LibroDTO libro : libros) {
+                        reporte.append("ID: ").append(libro.getId()).append(", Título: ").append(libro.getTitulo()).append(", Autor: ").append(libro.getAutor()).append(", Género: ").append(libro.getGenero()).append("\n");
+                    }
+                    areaReportes.setText(reporte.toString());
+                } catch (BibliotecaException ex) {
+                    areaReportes.setText("Error al generar reporte: " + ex.getMessage());
+                }
+            }
+        });
+
+        itemReporteUsuariosMasPrestamos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    List<UsuarioDTO> usuarios = reporteDAO.usuariosConMasPrestamos();
+                    StringBuilder reporte = new StringBuilder("Usuarios con Más Préstamos:\n");
+                    for (UsuarioDTO usuario : usuarios) {
+                        reporte.append("ID: ").append(usuario.getId()).append(", Nombre: ").append(usuario.getNombre()).append(", Email: ").append(usuario.getEmail()).append("\n");
+                    }
+                    areaReportes.setText(reporte.toString());
+                } catch (BibliotecaException ex) {
+                    areaReportes.setText("Error al generar reporte: " + ex.getMessage());
+                }
+            }
+        });
         setVisible(true);
     }
 }
